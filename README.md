@@ -9,17 +9,4 @@ onscreen.
 
 ## Status
 
-The project is under development and is not functional in its current
-state.
-
-## Compiling
-
-First install the [Raspberry Pi Pico SDK](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf).
-
-The project can then be compiled using CMake:
-```bash
-mkdir build
-cd build
-cmake -DPICO_COPY_TO_RAM=1 ..
-make
-```
+The project is under development and is not functional in its current state.

@@ -15,18 +15,17 @@
 #include "dvi_serialiser.h"
 #include "common_dvi_pin_configs.h"
 
-#include "frame_buffer_320x240_rgb565.h"
+#include "frame_buffer_rgb565.h"
 #include "ngage.h"
 
 // DVDD 1.2V (1.1V seems ok too)
-#define FRAME_WIDTH  320
-#define FRAME_HEIGHT 240
-#define VREG_VSEL    VREG_VOLTAGE_1_20
-#define DVI_TIMING   dvi_timing_640x480p_60hz
+#define VREG_VSEL  VREG_VOLTAGE_1_20
+#define DVI_TIMING dvi_timing_640x480p_60hz
 
 struct dvi_inst dvi0;
 
-void core1_main() {
+void core1_main()
+{
     dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
     while (queue_is_empty(&dvi0.q_colour_valid))
     {
@@ -36,7 +35,8 @@ void core1_main() {
     dvi_scanbuf_main_16bpp(&dvi0);
 }
 
-int main() {
+int main()
+{
     vreg_set_voltage(VREG_VSEL);
     sleep_ms(10);
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
@@ -57,13 +57,13 @@ int main() {
     {
         uint disp_line = 0;
 
-        update_ngage_buffer();
+        update_display_buffer();
 
         for (uint8_t curr_line = DISPLAY_OFFSET_Y; curr_line < (DISPLAY_OFFSET_Y + NGAGE_DISPLAY_HEIGHT); ++curr_line)
         {
             for (uint disp_pos = 0; disp_pos < NGAGE_BUFFER_WIDTH; ++disp_pos)
             {
-                frame_buffer_320x240_rgb565[((curr_line * FRAME_WIDTH) * 2) + (DISPLAY_OFFSET_X + disp_pos)] =
+                frame_buffer_rgb565[((curr_line * FRAME_WIDTH) * 2) + (DISPLAY_OFFSET_X + disp_pos)] =
                     display_buffer_rgb565[(disp_line * NGAGE_BUFFER_WIDTH) + disp_pos];
             }
             disp_line++;
@@ -72,7 +72,7 @@ int main() {
 
         for (uint8_t curr_line = 0; curr_line < FRAME_HEIGHT; ++curr_line)
         {
-            uint16_t* scanline = &((uint16_t*)frame_buffer_320x240_rgb565)[curr_line * FRAME_WIDTH];
+            uint16_t* scanline = &((uint16_t*)frame_buffer_rgb565)[curr_line * FRAME_WIDTH];
             queue_add_blocking_u32(&dvi0.q_colour_valid, &scanline);
             while (queue_try_remove_u32(&dvi0.q_colour_free, &scanline));
         }
